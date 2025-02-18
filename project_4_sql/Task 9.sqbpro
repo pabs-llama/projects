@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="Task 9.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="286"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><table title=".Browsables" custom_title="0" dock_id="27" table="0,10:Browsables"/><dock_state state="000000ff00000000fd00000001000000020000033700000294fc0100000006fb000000160064006f0063006b00420072006f00770073006500310100000000000002b60000000000000000fb000000180064006f0063006b00420072006f007700730065003100320100000000000002b60000000000000000fb000000180064006f0063006b00420072006f007700730065003100330100000000ffffffff0000000000000000fb000000180064006f0063006b00420072006f007700730065003100340100000000000003370000000000000000fb000000180064006f0063006b00420072006f007700730065003200360100000000ffffffff0000000000000000fb000000180064006f0063006b00420072006f007700730065003200370100000000ffffffff0000010100ffffff000003370000000000000004000000040000000800000008fc00000000"/><default_encoding codec=""/><browse_table_settings/></tab_browse><tab_sql><sql name="SQL 1*">Questions
+-- 9.1 Give the package name and how many times they're downloaded. Order by highest to lowest number of times downloaded.
+-- 9.2 Give the package ranking (based on how many times it was downloaded) during 9AM to 11AM
+-- 9.3 How many records (downloads) are from China (&quot;CN&quot;) or Japan(&quot;JP&quot;) or Singapore (&quot;SG&quot;)?
+-- 9.4 Print the countries whose downloads are more than the downloads from China (&quot;CN&quot;)
+–-9.5 Print the length of each package name for packages which appear only once. 
+-- In the same query, show the average length of all such packages.
+-- 9.6 Get the package whose download count ranks 2nd (print package name and its download count).
+-- 9.7 Print the name of the package whose download count is bigger than 1000.
+-- 9.8 The field &quot;r_os&quot; is the operating system of the users.
+-- Here we would like to know what main system we have (ignore version number), the relevant counts, and the proportion (in percentage).
+--Hint: to write a query which can ignore the version number, try this: https://github.com/asg017/sqlite-regex)
+</sql><current_tab id="0"/></tab_sql></sqlb_project>

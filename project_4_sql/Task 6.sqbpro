@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="Task 6.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="577"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><table title="AssignedTo" custom_title="0" dock_id="14" table="4,10:mainAssignedTo"/><dock_state state="000000ff00000000fd00000001000000020000033700000294fc0100000004fb000000160064006f0063006b00420072006f00770073006500310100000000000002b60000000000000000fb000000180064006f0063006b00420072006f007700730065003100320100000000000002b60000000000000000fb000000180064006f0063006b00420072006f007700730065003100330100000000ffffffff0000000000000000fb000000180064006f0063006b00420072006f007700730065003100340100000000000003370000010100ffffff000003370000000000000004000000040000000800000008fc00000000"/><default_encoding codec=""/><browse_table_settings><table schema="main" name="AssignedTo" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_" freeze_columns="0"><sort/><column_widths><column index="1" value="69"/><column index="2" value="55"/><column index="3" value="47"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table></browse_table_settings></tab_browse><tab_sql><sql name="SQL 1">CREATE TABLE Scientists (
+  SSN int,
+  Name Char(30) not null,
+  Primary Key (SSN)
+);
+
+CREATE TABLE Projects (
+  Code Char(4),
+  Name Char(50) not null,
+  Primary Key (Code)
+);
+	
+CREATE TABLE AssignedTo (
+  Scientist int not null,
+  Project char(4) not null,
+  Hours int,
+  Primary Key (Scientist, Project)
+);
+
+</sql><sql name="SQL 2">INSERT INTO Scientists(SSN,Name) 
+VALUES(123234877,'Michael Rogers'),
+(152934485,'Anand Manikutty'),
+(222364883, 'Carol Smith'),
+(326587417,'Joe Stevens'),
+(332154719,'Mary-Anne Foster'),	
+(332569843,'George ODonnell'),
+(546523478,'John Doe'),
+(631231482,'David Smith'),
+(654873219,'Zacary Efron'),
+(745685214,'Eric Goldsmith'),
+(845657245,'Elizabeth Doe'),
+(845657246,'Kumar Swamy');
+
+INSERT INTO Projects ( Code,Name)
+VALUES ('AeH1','Winds: Studying Bernoullis Principle'),
+('AeH2','Aerodynamics and Bridge Design'),
+('AeH3','Aerodynamics and Gas Mileage'),
+('AeH4','Aerodynamics and Ice Hockey'),
+('AeH5','Aerodynamics of a Football'),
+('AeH6','Aerodynamics of Air Hockey'),
+('Ast1','A Matter of Time'),
+('Ast2','A Puzzling Parallax'),
+('Ast3','Build Your Own Telescope'),
+('Bte1','Juicy: Extracting Apple Juice with Pectinase'),
+('Bte2','A Magnetic Primer Designer'),
+('Bte3','Bacterial Transformation Efficiency'),
+('Che1','A Silver-Cleaning Battery'),
+('Che2','A Soluble Separation Solution');
+
+INSERT INTO AssignedTo ( Scientist, Project, Hours)
+VALUES (123234877,'AeH1', 156),
+(152934485,'AeH3',189),
+(222364883,'Ast3', 256),	   
+(326587417,'Ast3', 789),
+(332154719,'Bte1', 98),
+(546523478,'Che1',89),
+(631231482,'Ast3',112),
+(654873219,'Che1', 299),
+(745685214,'AeH3', 6546),
+(845657245,'Ast1', 321),
+(845657246,'Ast2', 9684),
+(332569843,'AeH4', 321);
+</sql><sql name="SQL 3*">Questions
+-- 6.1 List all the scientists' names, their projects' names, 
+    -- and the total hours worked on each project, 
+    -- in alphabetical order of project name, then scientist name.
+SELECT sc.Name as sc_name, pj.Name as pj_name, at.Hours
+FROM 	AssignedTo as at
+JOIN Projects as pj
+ON at.Project = pj.Code
+JOIN Scientists as sc
+ON at.Scientist = sc.SSN
+ORDER BY pj_name ASC, sc_name ASC
+	
+-- 6.2 Now list the project names and total hours worked on each, from most to least total hours.
+SELECT pj.Name as pj_name, sum(at.Hours) as total_hours
+FROM 	AssignedTo as at
+JOIN Projects as pj
+ON at.Project = pj.Code
+GROUP BY pj.Name
+ORDER BY total_hours DESC
+
+-- 6.3 Select the project names which do not have any scientists currently assigned to them.
+SELECT *
+FROM Projects as pj
+LEFT JOIN AssignedTo as at
+ON at.Project = pj.Code
+WHERE Scientist ISNULL
+
+
+
+</sql><current_tab id="2"/></tab_sql></sqlb_project>

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="Task 5.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="618"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><table title="Providers" custom_title="0" dock_id="14" table="4,9:mainProviders"/><dock_state state="000000ff00000000fd00000001000000020000033700000294fc0100000004fb000000160064006f0063006b00420072006f00770073006500310100000000000002b60000000000000000fb000000180064006f0063006b00420072006f007700730065003100320100000000000002b60000000000000000fb000000180064006f0063006b00420072006f007700730065003100330100000000ffffffff0000000000000000fb000000180064006f0063006b00420072006f007700730065003100340100000000000003370000010100ffffff000003370000000000000004000000040000000800000008fc00000000"/><default_encoding codec=""/><browse_table_settings><table schema="main" name="Pieces" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_" freeze_columns="0"><sort/><column_widths><column index="1" value="42"/><column index="2" value="54"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="Providers" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_" freeze_columns="0"><sort/><column_widths><column index="1" value="42"/><column index="2" value="109"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="Provides" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_" freeze_columns="0"><sort/><column_widths><column index="1" value="44"/><column index="2" value="63"/><column index="3" value="42"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table></browse_table_settings></tab_browse><tab_sql><sql name="SQL 1">CREATE TABLE Pieces (
+ Code INTEGER NOT NULL,
+ Name TEXT NOT NULL,
+ PRIMARY KEY (Code)
+ );
+CREATE TABLE Providers (
+ Code VARCHAR(40) NOT NULL,  
+ Name TEXT NOT NULL,
+PRIMARY KEY (Code) 
+ );
+CREATE TABLE Provides (
+ Piece INTEGER, 
+ Provider VARCHAR(40), 
+ Price INTEGER NOT NULL,
+ PRIMARY KEY(Piece, Provider) 
+ );
+</sql><sql name="SQL 2">INSERT INTO Providers(Code, Name) VALUES('HAL','Clarke Enterprises');
+INSERT INTO Providers(Code, Name) VALUES('RBT','Susan Calvin Corp.');
+INSERT INTO Providers(Code, Name) VALUES('TNBC','Skellington Supplies');
+
+INSERT INTO Pieces(Code, Name) VALUES(1,'Sprocket');
+INSERT INTO Pieces(Code, Name) VALUES(2,'Screw');
+INSERT INTO Pieces(Code, Name) VALUES(3,'Nut');
+INSERT INTO Pieces(Code, Name) VALUES(4,'Bolt');
+
+INSERT INTO Provides(Piece, Provider, Price) VALUES(1,'HAL',10);
+INSERT INTO Provides(Piece, Provider, Price) VALUES(1,'RBT',15);
+INSERT INTO Provides(Piece, Provider, Price) VALUES(2,'HAL',20);
+INSERT INTO Provides(Piece, Provider, Price) VALUES(2,'RBT',15);
+INSERT INTO Provides(Piece, Provider, Price) VALUES(2,'TNBC',14);
+INSERT INTO Provides(Piece, Provider, Price) VALUES(3,'RBT',50);
+INSERT INTO Provides(Piece, Provider, Price) VALUES(3,'TNBC',45);
+INSERT INTO Provides(Piece, Provider, Price) VALUES(4,'HAL',5);
+INSERT INTO Provides(Piece, Provider, Price) VALUES(4,'RBT',7);
+</sql><sql name="SQL 3">Questions
+
+-- 5.1 Select the name of all the pieces. 
+SELECT Name
+FROM Pieces
+
+-- 5.2  Select all the providers' data. 
+SELECT *
+FROM Providers
+
+-- 5.3 Obtain the average price of each piece (show only the piece code and the average price).
+SELECT avg(Price) as avg_price, Piece
+FROM Provides
+GROUP BY Piece
+
+-- 5.4  Obtain the names of all providers who supply piece 1.
+SELECT Providers.Name
+FROM Providers
+JOIN Provides
+ON Providers.Code = Provides.Provider
+WHERE Provides.Piece = 1
+
+-- 5.5 Select the name of pieces provided by the provider with code &quot;HAL&quot;.
+
+SELECT Pieces.Name
+FROM Pieces
+JOIN Provides
+ON Pieces.Code = Provides.Piece
+WHERE Provider = &quot;HAL&quot;
+
+-- 5.6 Add an entry to the database to indicate that &quot;Skellington Supplies&quot; (code &quot;TNBC&quot;) will provide sprockets (code &quot;1&quot;) for 15 cents each.
+INSERT INTO Provides(Piece, Provider, Price) VALUES(1,'TNBC',15);
+
+-- 5.7 For each piece, find the most expensive offering of that piece and include the piece name, provider name, and price 
+SELECT Pieces.Name as Piece, Providers.Name as Provider, max(Provides.Price)
+FROM Provides
+JOIN Pieces on Provides.Piece = Pieces.Code
+JOIN Providers on Provides.Provider = Providers.Code
+GROUP BY Pieces.Name
+
+SELECT Pieces.Name as Piece, Providers.Name as Provider,Provides.Price
+FROM Provides
+JOIN Pieces on Provides.Piece = Pieces.Code
+JOIN Providers on Provides.Provider = Providers.Code
+--GROUP BY Pieces.Name
+
+--(OPTIONAL: As there could be more than one provider who supply the same piece at the most expensive price, 
+-- show all providers who supply at the most expensive price).
+-- 5.8 Increase all prices by one cent.
+UPDATE Provides
+SET Price = Price + 1 
+-- 5.9 Update the database to reflect that &quot;Susan Calvin Corp.&quot; (code &quot;RBT&quot;) will not supply bolts (code 4).
+DELETE 
+FROM Provides
+WHERE Provider = &quot;RBT&quot; AND Piece = 4
+
+-- 5.10 Update the database to reflect that &quot;Susan Calvin Corp.&quot; (code &quot;RBT&quot;) will not supply any pieces (the provider should still remain in the database).
+DELETE 
+FROM Provides
+WHERE Provider = &quot;RBT&quot; 
+
+</sql><current_tab id="2"/></tab_sql></sqlb_project>
