@@ -271,7 +271,7 @@ INSERT INTO Trained_In VALUES(7,4,'2008-01-01','2008-12-31');
 INSERT INTO Trained_In VALUES(7,5,'2008-01-01','2008-12-31');
 INSERT INTO Trained_In VALUES(7,6,'2008-01-01','2008-12-31');
 INSERT INTO Trained_In VALUES(7,7,'2008-01-01','2008-12-31');
-</sql><sql name="SQL 3*">Questions
+</sql><sql name="SQL 3">Questions
 -- 8.1 Obtain the names of all physicians that have performed a medical procedure they have never been certified to perform.
 SELECT ph.Name, Treatment
 FROM Physician as ph
@@ -310,16 +310,23 @@ WHERE ti.Treatment ISNULL
 SELECT u.Physician, ph.Name, ti.Treatment as certified, u.Procedure as performed, Date, CertificationExpires
 FROM Trained_In as ti
 JOIN  Undergoes as u
-ON u.Physician = ti.Physician AND u.Procedure = ti.Treatment
+ON u.Physician = ti.Physician --AND u.Procedure = ti.Treatment
 LEFT JOIN Physician as ph ON ph.EmployeeID = u.Physician
 WHERE Date &gt; CertificationExpires
 ORDER BY u.Physician ASC, performed ASC, certified ASC
 
+SELECT p.name, a.name, certificationexpires, date
+FROM physician p 
+JOIN trained_in t ON p.employeeid=t.physician
+JOIN undergoes u ON p.employeeid=u.physician
+JOIN procedures a ON a.code=t.treatment
+WHERE date&gt;certificationexpires;
+
+
 -- 8.4 Same as the previous query, but include the following information in the results: Physician name, name of procedure, date when the procedure was carried out, name of the patient the procedure was carried out on, and date when the certification expired.
 SELECT  ph.Name, pr.Name, Date,pt.Name, CertificationExpires
 FROM Trained_In as ti
-JOIN  Undergoes as u
-ON u.Physician = ti.Physician AND u.Procedure = ti.Treatment
+JOIN  Undergoes as u ON u.Physician = ti.Physician AND u.Procedure = ti.Treatment
 JOIN Physician as ph ON ph.EmployeeID = u.Physician
 JOIN Procedures as pr on pr.Code = u.Procedure
 JOIN Patient as pt on pt.SSN = u.Patient
@@ -358,12 +365,47 @@ LEFT JOIN STAY as s on u.Patient = s.Patient AND u.Stay = s.StayID
 WHERE StayID ISNULL
 
 -- 8.7 Obtain the names of all the nurses who have ever been on call for room 123.
+SELECT *
+FROM Room
 
+SELECT *
+FROM On_Call
+
+SELECT n.Name as nurse_name, r.Number as room_number
+FROM On_Call oc
+LEFT JOIN Room r
+ON oc.BlockFloor = r.BlockFloor AND oc.BlockCode = r.BlockCode
+JOIN Nurse n on oc.Nurse = n.EmployeeID
+WHERE Number = 123
 
 -- 8.8 The hospital has several examination rooms where appointments take place. Obtain the number of appointments that have taken place in each examination room.
+SELECT ExaminationRoom, count(AppointmentID) as appointments_count
+FROM Appointment
+GROUP BY ExaminationRoom
+
 -- 8.9 Obtain the names of all patients and their primary care physician, such that the following are true:
     -- The patient has been prescribed some medication by his/her primary care physician.
     -- The patient has undergone a procedure with a cost larger that $5,000
     -- The patient has had at least two appointments where the nurse who prepared the appointment was a registered nurse.
     -- The patient's primary care physician is not the head of any department.
+	
+SELECT pt.Name,ph.Name(PCP)
+--1
+
+with registered_nurse_appointment as (
+SELECT count(AppointmentID),Patient--,PrepNurse,Registered
+FROM Appointment a
+JOIN Nurse n ON a.PrepNurse = n.EmployeeID
+WHERE Registered = 1
+GROUP BY Patient
+HAVING  count(AppointmentID)&gt;1)
+
+SELECT pt.Name, pr.Medication, ph.Name,u.Procedure,proc.Cost
+FROM Prescribes pr
+LEFT JOIN Patient pt ON  pr.Patient = pt.SSN 
+JOIN Undergoes u ON pt.SSN = u.Patient
+JOIN Procedures proc on u.Procedure = proc.Code
+JOIN registered_nurse_appointment as rna on pr.Patient = rna.Patient
+JOIN Physician ph ON pt.PCP = ph.EmployeeID
+WHERE pr.Physician = pt.PCP AND proc.Cost &gt;5000 AND Position NOT LIKE &quot;%Head%&quot;
 </sql><current_tab id="2"/></tab_sql></sqlb_project>
