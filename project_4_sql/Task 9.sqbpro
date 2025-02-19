@@ -11,12 +11,27 @@ SELECT package, DENSE_RANK() OVER(ORDER BY count(download_date)DESC) as rank
 FROM cran_logs_2015_01_01
 WHERE time &gt; &quot;09:00:00&quot; AND time &lt;&quot;11:00:00&quot;
 GROUP BY package
+
 -- 9.3 How many records (downloads) are from China (&quot;CN&quot;) or Japan(&quot;JP&quot;) or Singapore (&quot;SG&quot;)?
 SELECT count(download_date), country
 FROM cran_logs_2015_01_01
 WHERE country IN (&quot;CN&quot;,&quot;JP&quot;,&quot;SG&quot;)
 GROUP BY country
+
 -- 9.4 Print the countries whose downloads are more than the downloads from China (&quot;CN&quot;)
+
+SELECT country, count (*) AS total_downloads
+FROM cran_logs_2015_01_01
+GROUP BY country
+HAVING COUNT(*) &gt; (
+    SELECT COUNT(*) 
+    FROM cran_logs_2015_01_01
+    WHERE country = 'CN'
+);
+
+--JOIN china on cran_logs_2015_01_01.country = china.country
+
+
 –-9.5 Print the length of each package name for packages which appear only once. 
 -- In the same query, show the average length of all such packages.
 -- 9.6 Get the package whose download count ranks 2nd (print package name and its download count).
