@@ -273,7 +273,7 @@ INSERT INTO Trained_In VALUES(7,6,'2008-01-01','2008-12-31');
 INSERT INTO Trained_In VALUES(7,7,'2008-01-01','2008-12-31');
 </sql><sql name="SQL 3*">Questions
 -- 8.1 Obtain the names of all physicians that have performed a medical procedure they have never been certified to perform.
-SELECT ph.Name, Treatment, Procedure
+SELECT ph.Name, Treatment
 FROM Physician as ph
 JOIN Trained_In as ti
 ON ph.EmployeeID = ti.Physician
@@ -281,14 +281,50 @@ JOIN Undergoes as u
 ON ti.Treatment = u.Procedure
 
 -- Procedures.code == Trained_In.Treatment ==Undergoes.Procedure
-SELECT u.Physician, Procedure, Treatment as certified
-FROM Undergoes as u
-LEFT JOIN Trained_In as ti
-ON u.Procedure = ti.Treatment
+SELECT u.Physician, ph.Name, ti.Treatment as certified, u.Procedure as performed
+FROM Trained_In as ti
+RIGHT JOIN  Undergoes as u
+ON u.Physician = ti.Physician AND u.Procedure = ti.Treatment
+LEFT JOIN Physician as ph ON ph.EmployeeID = u.Physician
+WHERE ti.Treatment ISNULL
+ORDER BY u.Physician ASC, performed ASC, certified ASC
+
+SELECT Physician, Treatment, CertificationExpires
+FROM Trained_In
+
+SELECT Physician, Procedure
+FROM Undergoes
+ORDER BY Physician ASC
 
 -- 8.2 Same as the previous query, but include the following information in the results: Physician name, name of procedure, date when the procedure was carried out, name of the patient the procedure was carried out on.
+SELECT ph.Name,pr.Name as procedure, u.Date, pt. Name--ti.Treatment as certified, u.Procedure as performed
+FROM Trained_In as ti
+RIGHT JOIN  Undergoes as u
+ON u.Physician = ti.Physician AND u.Procedure = ti.Treatment
+LEFT JOIN Physician as ph ON ph.EmployeeID = u.Physician
+LEFT JOIN Procedures as pr on pr.Code = u.Procedure
+LEFT JOIN Patient as pt on pt.SSN = u.Patient
+WHERE ti.Treatment ISNULL
+
 -- 8.3 Obtain the names of all physicians that have performed a medical procedure that they are certified to perform, but such that the procedure was done at a date (Undergoes.Date) after the physician's certification expired (Trained_In.CertificationExpires).
+SELECT u.Physician, ph.Name, ti.Treatment as certified, u.Procedure as performed, Date, CertificationExpires
+FROM Trained_In as ti
+JOIN  Undergoes as u
+ON u.Physician = ti.Physician AND u.Procedure = ti.Treatment
+LEFT JOIN Physician as ph ON ph.EmployeeID = u.Physician
+WHERE Date &gt; CertificationExpires
+ORDER BY u.Physician ASC, performed ASC, certified ASC
+
 -- 8.4 Same as the previous query, but include the following information in the results: Physician name, name of procedure, date when the procedure was carried out, name of the patient the procedure was carried out on, and date when the certification expired.
+SELECT  ph.Name, pr.Name, Date,pt.Name, CertificationExpires
+FROM Trained_In as ti
+JOIN  Undergoes as u
+ON u.Physician = ti.Physician AND u.Procedure = ti.Treatment
+JOIN Physician as ph ON ph.EmployeeID = u.Physician
+JOIN Procedures as pr on pr.Code = u.Procedure
+JOIN Patient as pt on pt.SSN = u.Patient
+WHERE Date &gt; CertificationExpires
+
 -- 8.5 Obtain the information for appointments where a patient met with a physician other than his/her primary care physician. Show the following information: Patient name, physician name, nurse name (if any), start and end time of appointment, examination room, and the name of the patient's primary care physician.
 -- 8.6 The Patient field in Undergoes is redundant, since we can obtain it from the Stay table. There are no constraints in force to prevent inconsistencies between these two tables. More specifically, the Undergoes table may include a row where the patient ID does not match the one we would obtain from the Stay table through the Undergoes.Stay foreign key. Select all rows from Undergoes that exhibit this inconsistency.
 -- 8.7 Obtain the names of all the nurses who have ever been on call for room 123.
