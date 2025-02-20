@@ -17,7 +17,7 @@ INSERT INTO ADDRESS VALUES(4, &quot;address-4-1&quot;, &quot;2010-05-21&quot;);
 INSERT INTO ADDRESS VALUES(4, &quot;address-4-2&quot;, &quot;2012-02-11&quot;);
 INSERT INTO ADDRESS VALUES(4, &quot;address-4-3&quot;, &quot;2015-04-27&quot;);
 INSERT INTO ADDRESS VALUES(4, &quot;address-4-4&quot;, &quot;2014-01-01&quot;)
-</sql><sql name="SQL 2*">Questions
+</sql><sql name="SQL 2">Questions
 -- 10.1 Join table PEOPLE and ADDRESS, but keep only one address information for each person (we don't mind which record we take for each person).
 
 SELECT  p.name, CASE
