@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="Taskl 4.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="286"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><table title=".Browsables" custom_title="0" dock_id="23" table="0,10:Browsables"/><dock_state state="000000ff00000000fd0000000100000002000002b600000294fc0100000005fb000000160064006f0063006b00420072006f00770073006500310100000000000002b60000000000000000fb000000180064006f0063006b00420072006f007700730065003100320100000000000002b60000000000000000fb000000180064006f0063006b00420072006f007700730065003100370100000000ffffffff0000000000000000fb000000180064006f0063006b00420072006f007700730065003200320100000000ffffffff0000000000000000fb000000180064006f0063006b00420072006f007700730065003200330100000000ffffffff0000010100ffffff000002b60000000000000004000000040000000800000008fc00000000"/><default_encoding codec=""/><browse_table_settings/></tab_browse><tab_sql><sql name="SQL 13">CREATE TABLE Warehouses (
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="Taskl 4.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="286"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><table title=".Browsables" custom_title="0" dock_id="23" table="4,13:mainMovieTheaters"/><dock_state state="000000ff00000000fd0000000100000002000002b600000294fc0100000005fb000000160064006f0063006b00420072006f00770073006500310100000000000002b60000000000000000fb000000180064006f0063006b00420072006f007700730065003100320100000000000002b60000000000000000fb000000180064006f0063006b00420072006f007700730065003100370100000000ffffffff0000000000000000fb000000180064006f0063006b00420072006f007700730065003200320100000000ffffffff0000000000000000fb000000180064006f0063006b00420072006f007700730065003200330100000000000002b60000015c00ffffff000002b60000000000000004000000040000000800000008fc00000000"/><default_encoding codec=""/><browse_table_settings><table schema="main" name="MovieTheaters" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_" freeze_columns="0"><sort/><column_widths><column index="1" value="42"/><column index="2" value="70"/><column index="3" value="47"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table></browse_table_settings></tab_browse><tab_sql><sql name="SQL 13">CREATE TABLE Warehouses (
    Code INTEGER NOT NULL,
    Location VARCHAR(255) NOT NULL ,
    Capacity INTEGER NOT NULL,
@@ -28,7 +28,7 @@ CREATE TABLE Boxes (
  INSERT INTO Boxes(Code,Contents,Value,Warehouse) VALUES('P0H6','Scissors',125,1);
  INSERT INTO Boxes(Code,Contents,Value,Warehouse) VALUES('P2T6','Scissors',150,2);
  INSERT INTO Boxes(Code,Contents,Value,Warehouse) VALUES('TU55','Papers',90,5);
-</sql><sql name="SQL 2">Task 3
+</sql><sql name="SQL 2*">Task 3
 
 --3.1 Select all warehouses.
 SELECT * 
@@ -104,6 +104,16 @@ DELETE FROM Boxes
 WHERE Value &lt; 100;
 
 -- 3.15 Remove all boxes from saturated warehouses.
+DELETE
+FROM Boxes
+Where Warehouse IN (
+	SELECT B.Warehouse, W.Capacity, COUNT(B.Code) AS number_of_boxes
+FROM Warehouses AS W
+JOIN Boxes AS B
+ON W.Code=B.Warehouse
+GROUP BY W.Code
+HAVING W.Capacity &lt; number_of_boxes
+ORDER BY W.Code);
 
 -- with CTE for MySQL
 WITH overcapacity AS ( 
@@ -138,4 +148,4 @@ WHERE type = &quot;index&quot;;
     -- !!!NOTE!!!: index should NOT be used on small tables in practice
 DROP INDEX INDEX_WAREHOUSE;
 
-</sql><current_tab id="1"/></tab_sql></sqlb_project>
+</sql><current_tab id="2"/></tab_sql></sqlb_project>

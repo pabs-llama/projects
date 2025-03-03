@@ -26,7 +26,7 @@ INSERT INTO MovieTheaters(Code,Name,Movie) VALUES(3,'Majestic',NULL);
 INSERT INTO MovieTheaters(Code,Name,Movie) VALUES(4,'Royale',6);
 INSERT INTO MovieTheaters(Code,Name,Movie) VALUES(5,'Paraiso',3);
 INSERT INTO MovieTheaters(Code,Name,Movie) VALUES(6,'Nickelodeon',NULL);
-</sql><sql name="SQL 18">Questions
+</sql><sql name="SQL 18*">Questions
 -- 4.1 Select the title of all movies.
 SELECT Title
 FROM Movies
@@ -54,7 +54,7 @@ ON mt.Movie =m.Code
 -- 4.6 Select all data from all movies and, if that movie is being shown in a theater, show the data from the theater.
 SELECT *
 FROM Movies as m
-JOIN MovieTheaters as mt
+LEFT JOIN MovieTheaters as mt
 ON mt.Movie =m.Code
 
 -- 4.7 Show the titles of movies not currently being shown in any theaters.
