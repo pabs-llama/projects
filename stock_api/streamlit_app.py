@@ -11,7 +11,7 @@ load_dotenv()
 
 # Fetching API data
 def get_api_data():
-    dbconn = st.secrets("DBCONN")
+    dbconn = st.secrets["DBCONN"]
     engine = create_engine(dbconn)
   
     query = text("SELECT date, open, close, high, low, volume, symbol FROM api_crypto_data")
@@ -27,7 +27,7 @@ api_data_df = api_data_df.round(2)
 
 # Fetching Scrapping data
 def get_scrapping_data():
-    dbconn = os.getenv("DBCONN")
+    dbconn = st.secrets["DBCONN"]
     engine = create_engine(dbconn)
   
     query = text("SELECT title, link, snippet, date FROM ft_articles")
