@@ -38,6 +38,41 @@ def get_scrapping_data():
 
 scrapping_data_df = get_scrapping_data()
 
+# adjusting background format
+
+st.markdown("""
+    <style>
+    /* Background color */
+    .stApp {
+        background-color: ##eaf2fb; /* light gray-blue background */
+    }
+
+    /* Optional: Card-style container for content */
+    .main > div {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Remove top space */
+    .block-container {
+        padding-top: 1rem;
+    }
+    button:hover, .stButton>button:hover, .stRadio>div>label:hover {
+    box-shadow: 0 0 8px #00ffe7, 0 0 16px #00ffe7;
+    transition: 0.3s ease;
+    }
+    /* Active toggle glow */
+    [data-testid="stToggleSwitch"] > div {
+    transition: all 0.3s ease;
+    }
+    [data-testid="stToggleSwitch"] > div:has(input:checked) {
+    box-shadow: 0 0 10px #00ffab;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 # Adding Title
 
 st.title("Crypto Analysis")
@@ -104,24 +139,14 @@ price_color = "green" if change_pct > 0 else "red"
 st.markdown(f"""
 ## :blue[{', '.join(selected_cryptos)}] Price Today: **{latest_price:.2f} EUR**  
 <span style="color:{price_color}; font-size:18px">
-{change_pct:+.2f}% over the last {time_range}
-</span>
+{change_pct:+.2f}% over the last {time_range}</span>
 """, unsafe_allow_html=True)
+
+st.markdown("<div style='height: 5px'></div>", unsafe_allow_html=True) # adding space 
 
 # st.subheader(f":blue[{', '.join(selected_cryptos)}] Historical Data")
 
 fig = go.Figure()
-
-#add toggle
-show_volume = st.toggle("Show Volume", value=True)
-if show_volume:
-    fig.add_trace(go.Bar(
-        x=df["date"],
-        y=df["volume"],
-        name="Volume",
-        marker=dict(color="lightblue", opacity=0.3),
-        yaxis="y2"
-    ))
 
 # Add closing price line
 fig.add_trace(go.Scatter(
@@ -179,10 +204,21 @@ fig.update_layout(
         bordercolor="rgba(0,0,0,0)",)  # ✅ no border)
 )
 
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig)
+#add toggle
+show_volume = st.toggle("Show Volume", value=True)
+if show_volume:
+    fig.add_trace(go.Bar(
+        x=df["date"],
+        y=df["volume"],
+        name="Volume",
+        marker=dict(color="lightblue", opacity=0.3),
+        yaxis="y2"
+    ))
 
 st.divider()
 
+# TOP MOVERS
 st.subheader(f"📊 Top Movers")
 
 change_period = st.selectbox("Select Timeframe for Top Movers", ["1Y", "6M", "1M","1W","1D"])
