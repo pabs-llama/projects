@@ -182,6 +182,17 @@ fig.add_trace(go.Scatter(
     textposition="bottom center"
 ))
 
+#add toggle
+show_volume = st.toggle("Show Volume", value=True)
+if show_volume:
+    fig.add_trace(go.Bar(
+        x=df["date"],
+        y=df["volume"],
+        name="Volume",
+        marker=dict(color="lightblue", opacity=0.3),
+        yaxis="y2"
+    ))
+
 fig.update_layout(
     # title=f"{symbol} Closing Price ({time_range})",
     xaxis_title="Date",
@@ -205,16 +216,7 @@ fig.update_layout(
 )
 
 st.plotly_chart(fig)
-#add toggle
-show_volume = st.toggle("Show Volume", value=True)
-if show_volume:
-    fig.add_trace(go.Bar(
-        x=df["date"],
-        y=df["volume"],
-        name="Volume",
-        marker=dict(color="lightblue", opacity=0.3),
-        yaxis="y2"
-    ))
+
 
 st.divider()
 
