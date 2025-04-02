@@ -1,3 +1,5 @@
 *.csv
 *.env
 .streamlit/secrets.toml
+package/
+*.zip
