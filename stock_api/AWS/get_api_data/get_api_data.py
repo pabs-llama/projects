@@ -42,5 +42,28 @@ def get_api_data(symbols=["BTC", "ETH", "USDT", "XRP", "SOL"], market="EUR"):
 
 # Lambda Handler (Think of lambda_handler as the “main” function Lambda runs when triggered)
 
+# # test:
+{
+  "crypto_data": [
+    {
+      "symbol": "BTC",
+      "date": "2025-03-28",
+      "open": 68000.0,
+      "high": 69000.0,
+      "low": 67000.0,
+      "close": 68500.0,
+      "volume": 12345.0
+    }
+  ]
+}
 
+
+
+# correct package: 
+# pip install --platform manylinux2014_x86_64 \
+#   --target=. \
+#   --implementation cp \
+#   --python-version 3.12 \
+#   --only-binary=:all: \
+#   psycopg2-binary sqlalchemy
 

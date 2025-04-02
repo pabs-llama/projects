@@ -1,7 +1,7 @@
-from sqlalchemy import create_engine, text
 import os
+from sqlalchemy import create_engine, text
 
-def update_api_table(data):
+def insert_crypto_data_to_db(data):
     dbconn = os.environ["DBCONN"]
     engine = create_engine(dbconn)
 
@@ -13,4 +13,22 @@ def update_api_table(data):
 
     with engine.begin() as conn:
         conn.execute(insert_sql, data)
-        print(f"✅ Inserted {len(data)} rows (skipping any duplicates).")
+        print(f"✅ Inserted {len(data)} rows (skipping duplicates).")
+
+# Lambda entry point
+def lambda_handler(event, context):
+    # Lambda will pass `event` from previous function or test
+    data = event.get("crypto_data")
+
+    if not data:
+        return {
+            "statusCode": 400,
+            "body": "❌ No crypto_data provided in event"
+        }
+
+    insert_crypto_data_to_db(data)
+
+    return {
+        "statusCode": 200,
+        "body": f"✅ Inserted {len(data)} rows into DB"
+    }
