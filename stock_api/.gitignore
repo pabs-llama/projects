@@ -4,3 +4,5 @@
 package/
 *.zip
 lambda_build/
+package_serpapi/
+*.txt

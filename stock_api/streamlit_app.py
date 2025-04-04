@@ -30,7 +30,7 @@ def get_scrapping_data():
     dbconn = st.secrets["DBCONN"]
     engine = create_engine(dbconn)
   
-    query = text("SELECT title, link, snippet, date FROM ft_articles")
+    query = text("SELECT title, link, snippet, date, symbol FROM ft_all_crypto_articles")
 
     with engine.connect() as conn:
         df = pd.read_sql (query,conn)
@@ -335,8 +335,12 @@ if selected_cryptos:
 
 st.subheader(f":blue[{', '.join(selected_cryptos)}] Financial Times Articles")
 
+# Filter the DataFrame based on selected cryptos
+filtered_articles_df = scrapping_data_df[scrapping_data_df["symbol"].isin(selected_cryptos)]
+
+
 st.data_editor(
-    scrapping_data_df,
+    filtered_articles_df,
     column_config={
         "title":"Title",
         "snippet":"Snippet",
@@ -344,7 +348,7 @@ st.data_editor(
         "link": st.column_config.LinkColumn(
             "Link", 
             help= "Check the article",
-            validate = r"^https://[a-z]+\.streamlit\.app$",
+            validate = r"^https://www\.ft\.com/.*",
             max_chars=100,
             display_text= "Link"
             

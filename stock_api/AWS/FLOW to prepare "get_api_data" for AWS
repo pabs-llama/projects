@@ -1,0 +1,29 @@
+FLOW to prepare "get_api_data" for AWS
+Create a clean working folder
+
+mkdir lambda_build
+cd lambda_build
+
+Install the packages inside this folder
+
+pip install --platform manylinux2014_x86_64 \
+  --target=. \
+  --implementation cp \
+  --python-version 3.12 \
+  --only-binary=:all: \
+  psycopg2-binary sqlalchemy
+
+Add the py file
+cp ../update_api_table.py .
+
+Zip everything
+zip -r9 ../update_api_table.zip .
+
+🔄 5. Upload to Lambda
+Upload update_api_table.zip
+
+Set runtime: Python 3.12
+
+Set handler: update_api_table.lambda_handler
+
+✅ Retest
