@@ -31,7 +31,8 @@ def get_scrapping_data():
     dbconn = st.secrets["DBCONN"]
     engine = create_engine(dbconn)
   
-    query = text("SELECT title, link, snippet, date, symbol FROM ft_all_crypto_articles")
+    query = text("SELECT title, link, snippet, date, symbol, sentiment " \
+    "FROM ft_all_crypto_articles ORDER BY date DESC")
 
     with engine.connect() as conn:
         df = pd.read_sql (query,conn)
@@ -41,38 +42,38 @@ scrapping_data_df = get_scrapping_data()
 
 # adjusting background format
 
-st.markdown("""
-    <style>
-    /* Background color */
-    .stApp {
-        background-color: ##eaf2fb; /* light gray-blue background */
-    }
+# st.markdown("""
+#     <style>
+#     /* Background color */
+#     .stApp {
+#         background-color: ##eaf2fb; /* light gray-blue background */
+#     }
 
-    /* Optional: Card-style container for content */
-    .main > div {
-        background-color: white;
-        padding: 2rem;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
+#     /* Optional: Card-style container for content */
+#     .main > div {
+#         background-color: white;
+#         padding: 2rem;
+#         border-radius: 12px;
+#         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+#     }
 
-    /* Remove top space */
-    .block-container {
-        padding-top: 1rem;
-    }
-    button:hover, .stButton>button:hover, .stRadio>div>label:hover {
-    box-shadow: 0 0 8px #00ffe7, 0 0 16px #00ffe7;
-    transition: 0.3s ease;
-    }
-    /* Active toggle glow */
-    [data-testid="stToggleSwitch"] > div {
-    transition: all 0.3s ease;
-    }
-    [data-testid="stToggleSwitch"] > div:has(input:checked) {
-    box-shadow: 0 0 10px #00ffab;
-    }
-    </style>
-""", unsafe_allow_html=True)
+#     /* Remove top space */
+#     .block-container {
+#         padding-top: 1rem;
+#     }
+#     button:hover, .stButton>button:hover, .stRadio>div>label:hover {
+#     box-shadow: 0 0 8px #00ffe7, 0 0 16px #00ffe7;
+#     transition: 0.3s ease;
+#     }
+#     /* Active toggle glow */
+#     [data-testid="stToggleSwitch"] > div {
+#     transition: all 0.3s ease;
+#     }
+#     [data-testid="stToggleSwitch"] > div:has(input:checked) {
+#     box-shadow: 0 0 10px #00ffab;
+#     }
+#     </style>
+# """, unsafe_allow_html=True)
 
 # Adding Title
 
