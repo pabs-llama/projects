@@ -2,10 +2,11 @@
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
-from dotenv import load_dotenv
 import os
-from sqlalchemy import create_engine, text
 import datetime
+import plotly.express as px
+from dotenv import load_dotenv
+from sqlalchemy import create_engine, text
 
 #Load dotenv
 load_dotenv()
@@ -31,7 +32,7 @@ def get_scrapping_data():
     dbconn = st.secrets["DBCONN"]
     engine = create_engine(dbconn)
   
-    query = text("SELECT title, link, snippet, date, symbol, sentiment " \
+    query = text("SELECT title, link, snippet, date, symbol, sentiment,sentiment_score " \
     "FROM ft_all_crypto_articles ORDER BY date DESC")
 
     with engine.connect() as conn:
@@ -39,41 +40,6 @@ def get_scrapping_data():
     return df
 
 scrapping_data_df = get_scrapping_data()
-
-# adjusting background format
-
-# st.markdown("""
-#     <style>
-#     /* Background color */
-#     .stApp {
-#         background-color: ##eaf2fb; /* light gray-blue background */
-#     }
-
-#     /* Optional: Card-style container for content */
-#     .main > div {
-#         background-color: white;
-#         padding: 2rem;
-#         border-radius: 12px;
-#         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-#     }
-
-#     /* Remove top space */
-#     .block-container {
-#         padding-top: 1rem;
-#     }
-#     button:hover, .stButton>button:hover, .stRadio>div>label:hover {
-#     box-shadow: 0 0 8px #00ffe7, 0 0 16px #00ffe7;
-#     transition: 0.3s ease;
-#     }
-#     /* Active toggle glow */
-#     [data-testid="stToggleSwitch"] > div {
-#     transition: all 0.3s ease;
-#     }
-#     [data-testid="stToggleSwitch"] > div:has(input:checked) {
-#     box-shadow: 0 0 10px #00ffab;
-#     }
-#     </style>
-# """, unsafe_allow_html=True)
 
 # Adding Title
 
@@ -98,8 +64,6 @@ selected_cryptos = st.pills(
     selection_mode= "multi",
     default="BTC"
 )
-# ## Adding a Header to the chart
-# st.subheader(f":blue[{', '.join(selected_cryptos)}] Historical Data")
 
 # interactive line graph
 
@@ -238,6 +202,8 @@ period_days_map = {
 delta = timedelta(days=period_days_map[change_period])
 cutoff = datetime.now() - delta
 
+# % Change line chart
+
 # Calculate % Change Per Symbol
 def calculate_top_movers(df, cutoff_date):
     df = df.copy()
@@ -333,31 +299,7 @@ if selected_cryptos:
     pivot_pct = filtered_df.pivot(index="date", columns="symbol", values="change_pct")
     st.line_chart(pivot_pct)
 
-# # Displaying a dataframe with the scraped data
-
-# st.subheader(f":blue[{', '.join(selected_cryptos)}] Financial Times Articles")
-
-# # Filter the DataFrame based on selected cryptos
-# filtered_articles_df = scrapping_data_df[scrapping_data_df["symbol"].isin(selected_cryptos)]
-
-
-# st.data_editor(
-#     filtered_articles_df,
-#     column_config={
-#         "title":"Title",
-#         "snippet":"Snippet",
-#         "date":"Date",
-#         "link": st.column_config.LinkColumn(
-#             "Link", 
-#             help= "Check the article",
-#             validate = r"^https://www\.ft\.com/.*",
-#             max_chars=100,
-#             display_text= "Link"
-            
-#         ),
-#     },
-#     hide_index=True,
-#     )
+# Displaying a dataframe with the scraped data
 
 st.subheader(f":blue[{', '.join(selected_cryptos)}] Financial Times Articles")
 
@@ -411,248 +353,68 @@ st.data_editor(
     hide_index=True,
 )
 
-# def add_daily_change(df):
-#     df = df.sort_values(["symbol", "date"])
-#     df["change_pct"] = df.groupby("symbol")["close"].pct_change() * 100
-#     df["change_pct"] = df["change_pct"].round(2)
-#     return df
+import streamlit as st
+import pandas as pd
+import matplotlib.pyplot as plt
+
+#sentiment analysis line chart
+
+scrapping_data_df['date'] = pd.to_datetime(scrapping_data_df['date'])
+
+# -- Main Title
+st.subheader("📈 Crypto Sentiment Trends")
+
+# -- Controls: multi-select for multiple cryptos
+available_cryptos = scrapping_data_df['symbol'].unique().tolist()
+selected_cryptos = st.multiselect("Select cryptocurrencies", available_cryptos, default=available_cryptos[:1])
+
+time_granularity = st.selectbox("Select time period", ['Daily', 'Weekly', 'Monthly', 'Yearly'])
+
+# -- Date filter
+filtered_df = scrapping_data_df[
+    (scrapping_data_df['symbol'].isin(selected_cryptos)) &
+    (scrapping_data_df['date'] >= pd.to_datetime("2024-09-01"))
+]
+
+# -- Resample frequency
+resample_rule = {
+    'Daily': 'D',
+    'Weekly': 'W',
+    'Monthly': 'M',
+    'Yearly': 'Y'
+}[time_granularity]
+
+# -- Group + resample by symbol and date
+sentiment_trend = (
+    filtered_df
+    .set_index('date')
+    .groupby('symbol')['sentiment_score']
+    .resample(resample_rule)
+    .mean()
+    .reset_index()
+)
+
+# -- Plotly line chart with color per symbol
+fig = px.line(
+    sentiment_trend,
+    x='date',
+    y='sentiment_score',
+    color='symbol',
+    markers=True,
+    title=f"Sentiment Trend Over Time ({time_granularity})",
+    labels={'sentiment_score': 'Avg Sentiment Score', 'date': 'Date', 'symbol': 'Crypto'},
+)
+
+fig.update_layout(
+    template='plotly_dark',
+    plot_bgcolor='rgba(0,0,0,0)',
+    paper_bgcolor='rgba(0,0,0,0)',
+    xaxis=dict(showgrid=False),
+    yaxis=dict(showgrid=False),
+    font=dict(color='white'),
+)
+
+st.plotly_chart(fig, use_container_width=True)
 
-# df = add_daily_change(api_data_df)
-
-# if selected_cryptos:
-#     filtered_df = df[df["symbol"].isin(selected_cryptos)]
-
-#     # Optional: Pivot for multi-line plot
-#     pivot_pct = filtered_df.pivot(index="date", columns="symbol", values="change_pct")
-
-#     st.subheader("📈 Daily % Change")
-#     st.line_chart(pivot_pct)
-
-# TOP MOVERS DF
-# def top_movers_table(df):
-#     latest_date = df["date"].max()
-#     latest = df[df["date"] == latest_date].copy()
-#     latest["change"] = latest["close"] - latest["open"]
-#     latest["change_pct"] = (latest["change"] / latest["open"]) * 100
-#     st.dataframe(latest[["symbol", "open", "close", "change", "change_pct"]].sort_values("change_pct", ascending=False))
-
-
-# if selected_cryptos:
-#     st.subheader("Top Movers")
-#     for symbol in selected_cryptos:
-#         top_movers_table(api_data_df)
-
-# top movers bar chart (Shows which cryptos moved the most (up or down) on the latest day)
-
-# def plot_top_movers(df):
-#     df = df.sort_values(["symbol", "date"])
-#     df["change_pct"] = df.groupby("symbol")["close"].pct_change() * 100
-
-#     latest_date = df["date"].max()
-#     latest = df[df["date"] == latest_date].copy()
-
-#     latest["change_pct"] = latest["change_pct"].round(2)
-
-#     st.subheader(f"📊 Top Movers on {latest_date.strftime('%Y-%m-%d')}")
-#     st.bar_chart(latest.set_index("symbol")["change_pct"])
-
-# plot_top_movers(api_data_df)
-
-#  Volatility Shading (High - Low Area) Visualizes price range per day — like a daily volatility band.
-
-# def plot_volatility_area(df, selected_symbols):
-#     st.subheader("📉 Daily Volatility Range (High - Low)")
-
-#     for symbol in selected_symbols:
-#         symbol_df = df[df["symbol"] == symbol].copy().sort_values("date")
-#         symbol_df["range"] = symbol_df["high"] - symbol_df["low"]
-
-#         st.area_chart(symbol_df.set_index("date")["range"], height=200)
-#         st.caption(f"{symbol} daily range in EUR")
-
-
-
-# plot_volatility_area(api_data_df, selected_cryptos)
-
-# import plotly.graph_objects as go
-
-# def plot_colored_top_movers(df):
-#     df = df.sort_values(["symbol", "date"])
-#     df["change_pct"] = df.groupby("symbol")["close"].pct_change() * 100
-
-#     latest_date = df["date"].max()
-#     latest = df[df["date"] == latest_date].copy()
-#     latest["change_pct"] = latest["change_pct"].round(2)
-
-#     # Set color per row: green for gainers, red for losers
-#     latest["color"] = latest["change_pct"].apply(lambda x: "blue" if x > 0 else "red")
-
-#     fig = go.Figure()
-
-#     fig.add_trace(go.Bar(
-#         x=latest["symbol"],
-#         y=latest["change_pct"],
-#         marker_color=latest["color"],
-#         text=latest["change_pct"].astype(str) + "%",
-#         textposition="auto",
-#     ))
-
-#     fig.update_layout(
-#         title=f"📊 Top Movers on {latest_date.strftime('%Y-%m-%d')}",
-#         yaxis_title="Daily Change (%)",
-#         xaxis_title="Cryptocurrency",
-#         height=400
-#     )
- 
-#     st.plotly_chart(fig, use_container_width=True)
-
-# plot_colored_top_movers(api_data_df)
-
-# Combine with FT articles to flag “news-driven” spikes
-## GOAL: Highlight or flag days where a price spike coincides with article activity
-### Step 1: Aggregate FT Articles by Date and Symbol
-
-# def get_article_counts(df):
-#     df["date"] = pd.to_datetime(df["date"])
-#     article_counts = df.groupby(["date"]).size().reset_index(name="article_count")
-#     return article_counts
-
-# ### Step 2: Merge Article Counts with Crypto Data
-# def merge_news_with_price(api_df, articles_df):
-#     api_df["date"] = pd.to_datetime(api_df["date"])
-#     articles_df["date"] = pd.to_datetime(articles_df["date"])
-
-#     article_counts = get_article_counts(articles_df)
-
-#     merged = pd.merge(api_df, article_counts, on="date", how="left")
-#     merged["article_count"] = merged["article_count"].fillna(0).astype(int)
-
-#     # Add daily % change
-#     merged = merged.sort_values("date")
-#     merged["change_pct"] = merged["close"].pct_change() * 100
-
-#     return merged
-
-# merged_df = merge_news_with_price(api_data_df, scrapping_data_df)
-
-# ## Groupping by week and month
-
-# # Convert date to datetime if not already
-# merged_df["date"] = pd.to_datetime(merged_df["date"])
-
-# # Grouping period column
-# merged_df["week"] = merged_df["date"].dt.to_period("W")  # weekly
-# merged_df["month"] = merged_df["date"].dt.to_period("M")  # or monthly
-
-# # Aggregate article count and avg % change by week
-# weekly_summary = merged_df.groupby(["week"]).agg({
-#     "article_count": "sum",
-#     "change_pct": "mean"  # or std for volatility
-# }).reset_index()
-
-# selected = st.selectbox("Choose view:", ["weekly", "monthly"])
-# group_col = "week" if selected == "weekly" else "month"
-
-# summary_df = merged_df.copy()
-# # summary_df[group_col] = summary_df["date"].dt.to_period("W" if selected == "weekly" else "M")
-# summary_df["week"] = summary_df["date"].dt.to_period("W").apply(lambda r: r.start_time.strftime("%Y-%m-%d"))
-
-# agg_df = summary_df.groupby(["symbol", group_col]).agg({
-#     "article_count": "sum",
-#     "change_pct": "mean"
-# }).reset_index()
-
-# for symbol in selected_cryptos:
-#     symbol_df = agg_df[agg_df["symbol"] == symbol]
-#     st.subheader(f"{symbol} — Avg Change vs Article Count ({selected})")
-
-#     st.bar_chart(
-#         symbol_df.set_index(group_col)[["change_pct", "article_count"]],
-#         height=300
-#     )
-
-
-# ### Flag "News-Driven Spikes"
-# # Define spike = abs(daily change > 5%) and at least 1 article that day
-# news_spikes = merged_df[
-#     (merged_df["article_count"] > 0) & 
-#     (merged_df["change_pct"].abs() > 5)
-# ]
-
-# st.subheader("📰 Price Spikes with FT Article Coverage")
-# st.dataframe(news_spikes[["date", "change_pct", "article_count"]])
-# st.subheader("📰 News-Driven Price Spikes")
-
-
-# st.scatter_chart(news_spikes[["article_count", "change_pct"]])
-
-
-# import plotly.graph_objects as go
-
-# def plot_dual_axis_news_vs_price(df, symbol, time_col="week"):
-#     df = df[df["symbol"] == symbol].copy()
-    
-#     # Ensure sorting
-#     df = df.sort_values(time_col)
-
-#     # Build figure
-#     fig = go.Figure()
-
-#     # Bar: article count (left y-axis)
-#     fig.add_trace(go.Bar(
-#         x=df[time_col],
-#         y=df["article_count"],
-#         name="Article Count",
-#         marker_color='rgba(0, 102, 204, 0.6)',
-#         yaxis="y1"
-#     ))
-
-#     # Line: % change (right y-axis)
-#     fig.add_trace(go.Scatter(
-#         x=df[time_col],
-#         y=df["change_pct"],
-#         name="Avg % Change",
-#         mode="lines+markers",
-#         marker=dict(color="crimson"),
-#         yaxis="y2"
-#     ))
-
-#     fig.update_layout(
-#     title=f"{symbol} — Avg % Change vs Article Volume ({time_col})",
-#     xaxis=dict(title="Date"),
-#     yaxis=dict(
-#         title="Article Count",
-#         side="left",
-#         showgrid=False
-#     ),
-#     yaxis2=dict(
-#         title="% Change",
-#         overlaying="y",
-#         side="right",
-#         showgrid=False,
-#         tickformat=".2f",  # ✅ Format as float, not millions
-#         rangemode="tozero"
-#     ),
-#     legend=dict(x=0.01, y=0.99),
-#     height=400
-# )
-#     st.plotly_chart(fig, use_container_width=True)
-
-# merged_df["week"] = merged_df["date"].dt.to_period("W").apply(lambda r: r.start_time.strftime("%Y-%m-%d"))
-
-# weekly_summary = merged_df.groupby(["symbol", "week"]).agg({
-#     "article_count": "sum",
-#     "change_pct": "mean"
-# }).reset_index()
-
-# for symbol in selected_cryptos:
-#     plot_dual_axis_news_vs_price(weekly_summary, symbol, time_col="week")
-
-
-
-
-# Dinamy time based top movers chart
-
-# Add Time Period Toggle
 
 
