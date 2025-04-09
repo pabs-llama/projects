@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 from dotenv import load_dotenv
 import os
 from sqlalchemy import create_engine, text
+import datetime
 
 #Load dotenv
 load_dotenv()
@@ -331,32 +332,83 @@ if selected_cryptos:
     pivot_pct = filtered_df.pivot(index="date", columns="symbol", values="change_pct")
     st.line_chart(pivot_pct)
 
-# Displaying a dataframe with the scraped data
+# # Displaying a dataframe with the scraped data
+
+# st.subheader(f":blue[{', '.join(selected_cryptos)}] Financial Times Articles")
+
+# # Filter the DataFrame based on selected cryptos
+# filtered_articles_df = scrapping_data_df[scrapping_data_df["symbol"].isin(selected_cryptos)]
+
+
+# st.data_editor(
+#     filtered_articles_df,
+#     column_config={
+#         "title":"Title",
+#         "snippet":"Snippet",
+#         "date":"Date",
+#         "link": st.column_config.LinkColumn(
+#             "Link", 
+#             help= "Check the article",
+#             validate = r"^https://www\.ft\.com/.*",
+#             max_chars=100,
+#             display_text= "Link"
+            
+#         ),
+#     },
+#     hide_index=True,
+#     )
 
 st.subheader(f":blue[{', '.join(selected_cryptos)}] Financial Times Articles")
 
-# Filter the DataFrame based on selected cryptos
-filtered_articles_df = scrapping_data_df[scrapping_data_df["symbol"].isin(selected_cryptos)]
+# 1. Convert date column to datetime (if not already)
+scrapping_data_df["date"] = pd.to_datetime(scrapping_data_df["date"])
 
+# # 2. Crypto selection
+# selected_cryptos_2 = st.pills(
+#     "Select Symbol:",
+#     ["BTC", "ETH", "USDT", "XRP", "SOL"],
+#     selection_mode="multi",
+#     default="BTC"
+# )
 
+# 3. Date range selection
+min_date = scrapping_data_df["date"].min().date()
+max_date = scrapping_data_df["date"].max().date()
+
+start_date, end_date = st.date_input(
+    "Select date range:",
+    value=(min_date, max_date),
+    min_value=min_date,
+    max_value=max_date
+)
+
+# ✅ Convert to datetime for filtering
+start_date = pd.to_datetime(start_date)
+end_date = pd.to_datetime(end_date)
+
+# 4. Filter by crypto + date range
+filtered_df = scrapping_data_df[
+    (scrapping_data_df["symbol"].isin(selected_cryptos)) &
+    (scrapping_data_df["date"].between(start_date, end_date))
+]
+
+# 5. Display filtered data
 st.data_editor(
-    filtered_articles_df,
+    filtered_df,
     column_config={
-        "title":"Title",
-        "snippet":"Snippet",
-        "date":"Date",
+        "title": "Title",
+        "snippet": "Snippet",
+        "date": "Date",
         "link": st.column_config.LinkColumn(
             "Link", 
-            help= "Check the article",
-            validate = r"^https://www\.ft\.com/.*",
+            help="Check the article",
+            validate=r"^https://www\.ft\.com/.*",
             max_chars=100,
-            display_text= "Link"
-            
+            display_text="Link"
         ),
     },
     hide_index=True,
-    )
-
+)
 
 # def add_daily_change(df):
 #     df = df.sort_values(["symbol", "date"])

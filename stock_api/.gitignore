@@ -6,3 +6,4 @@ package/
 lambda_build/
 package_serpapi/
 *.txt
+packages/
