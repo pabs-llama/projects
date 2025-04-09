@@ -101,7 +101,7 @@ initial_price = df["close"].iloc[0]
 change_pct = ((latest_price - initial_price) / initial_price) * 100
 
 ## Show Price + Change in Header
-price_color = "green" if change_pct > 0 else "red"
+price_color = "cyan" if change_pct > 0 else "magenta"
 st.markdown(f"""
 ## :blue[{', '.join(selected_cryptos)}] Price Today: **{latest_price:.2f} EUR**  
 <span style="color:{price_color}; font-size:18px">
