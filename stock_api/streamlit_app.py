@@ -353,10 +353,6 @@ st.data_editor(
     hide_index=True,
 )
 
-import streamlit as st
-import pandas as pd
-import matplotlib.pyplot as plt
-
 #sentiment analysis line chart
 
 scrapping_data_df['date'] = pd.to_datetime(scrapping_data_df['date'])
