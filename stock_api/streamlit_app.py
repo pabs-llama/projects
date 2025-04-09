@@ -131,7 +131,7 @@ fig.add_trace(go.Scatter(
     x=[max_point["date"]],
     y=[max_point["close"]],
     mode="markers+text",
-    marker=dict(color="cyam", size=10, symbol="triangle-up"),
+    marker=dict(color="cyan", size=10, symbol="triangle-up"),
     name="High",
     text=[f"High: {max_point['close']:.2f}"],
     textposition="top center"
