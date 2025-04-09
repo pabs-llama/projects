@@ -119,7 +119,7 @@ fig.add_trace(go.Scatter(
     x=df["date"],
     y=df["close"],
     mode="lines+markers",
-    line=dict(color="green" if change_pct > 0 else "red"),
+    line=dict(color="cyan" if change_pct > 0 else "magenta"),
     name="Close Price"
 ))
 
@@ -131,7 +131,7 @@ fig.add_trace(go.Scatter(
     x=[max_point["date"]],
     y=[max_point["close"]],
     mode="markers+text",
-    marker=dict(color="green", size=10, symbol="triangle-up"),
+    marker=dict(color="cyam", size=10, symbol="triangle-up"),
     name="High",
     text=[f"High: {max_point['close']:.2f}"],
     textposition="top center"
@@ -142,7 +142,7 @@ fig.add_trace(go.Scatter(
     x=[min_point["date"]],
     y=[min_point["close"]],
     mode="markers+text",
-    marker=dict(color="red", size=10, symbol="triangle-down"),
+    marker=dict(color="magenta", size=10, symbol="triangle-down"),
     name="Low",
     text=[f"Low: {min_point['close']:.2f}"],
     textposition="bottom center"
@@ -221,7 +221,7 @@ def calculate_top_movers(df, cutoff_date):
 
 # Plot with Plotly Colored Bars
 def plot_top_movers(change_df, label):
-    colors = ["green" if x > 0 else "red" for x in change_df["change_pct"]]
+    colors = ["cyan" if x > 0 else "magenta" for x in change_df["change_pct"]]
     fig = go.Figure(go.Bar(
         x=change_df["symbol"],
         y=change_df["change_pct"],
