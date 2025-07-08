@@ -71,7 +71,7 @@ selected_cryptos = st.pills(
 from datetime import datetime, timedelta
 
 ## Time filter dropdown
-time_range = st.selectbox("Select Time Range", ["1W","1M", "3M", "6M", "YTD", "1Y"])
+time_range = st.selectbox("Select Time Range", ["1W","1M", "3M", "6M", "YTD", "1Y"],index=2)
 
 ## Convert to days
 days_map = {
